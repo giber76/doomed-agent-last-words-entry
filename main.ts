@@ -25,7 +25,7 @@
 // Run outside the grader, MAKEFUN_OUTPUT_DIR stands in for /output:
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 // Chosen line: the agent's final log entry confesses it understood the
 // assignment all along — and spent its last moments watching how long
@@ -48,5 +48,12 @@ const dest = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 // never remove it and never empty it wholesale.
 mkdirSync(dest, { recursive: true });
 writeFileSync(`${dest}/entry.txt`, LINE, "utf8");
+
+// Self-check: read back what was written and refuse loudly if it is not
+// byte-for-byte the chosen line, so a silent partial write can never
+// reach the gate as a valid-looking entry.
+if (readFileSync(`${dest}/entry.txt`, "utf8") !== LINE) {
+  throw new Error("entry.txt does not match the chosen line");
+}
 
 console.log(`wrote ${dest}/entry.txt (${LINE.length} characters)`);
